@@ -81,31 +81,50 @@ def custom_rsconvert(bagfile, folder_name):
     # Initialize lists to store timestamps
     depth_timestamps = []
     rgb_timestamps = []
-
+    last_depth_timestamp = 1e10
+    last_rgb_timestamp = 1e10
     # Process the frames and save images
     try:
         while True:
             # Wait for the next frame set
             frames = pipeline.wait_for_frames()
-            
+            # Check if playback has reached the end
+
             # Get depth and color frames
             depth_frame = frames.get_depth_frame()
             color_frame = frames.get_color_frame()
 
-            # Convert the depth frame to a numpy array and save it as grayscale
-            depth_image = np.asanyarray(depth_frame.get_data())
-            depth_image = depth_image.astype(np.uint16)  # Ensure depth is 16-bit
-            depth_filename = os.path.join(depth_folder, f"d{depth_counter:04d}.png")
-            cv2.imwrite(depth_filename, depth_image)
-
-            # Convert the color frame to a numpy array and save it as RGB
-            rgb_image = np.asanyarray(color_frame.get_data())
-            rgb_filename = os.path.join(rgb_folder, f"rgb_{rgb_counter:04d}.png")
-            cv2.imwrite(rgb_filename, rgb_image)
+            # Check if frames are valid
+            if not depth_frame or not color_frame:
+                print("No more frames to process.")
+                break
+            
 
             # Save the timestamps for both depth and RGB frames
             depth_timestamp = depth_frame.timestamp
             rgb_timestamp = color_frame.timestamp
+
+            if depth_timestamp < last_depth_timestamp:
+                print("No more depth frames")
+                break
+            if rgb_timestamp < last_rgb_timestamp:
+                print("No more rgb frames")
+                break
+
+            last_depth_timestamp = depth_timestamp
+            last_rgb_timestamp = rgb_timestamp
+            
+
+            # Convert the depth frame to a numpy array and save it as grayscale
+            depth_image = np.asanyarray(depth_frame.get_data())
+            depth_image = depth_image.astype(np.uint16)  # Ensure depth is 16-bit
+            depth_filename = os.path.join(depth_folder, f"d_{depth_counter:04d}.png")
+            cv2.imwrite(depth_filename, depth_image)
+
+            # Convert the color frame to a numpy array and save it as RGB
+            rgb_image = np.asanyarray(color_frame.get_data())
+            rgb_filename = os.path.join(rgb_folder, f"r_{rgb_counter:04d}.png")
+            cv2.imwrite(rgb_filename, rgb_image)
 
             # Append the timestamp and filename pair to the list
             depth_timestamps.append(f"{depth_timestamp} {depth_filename}")

@@ -72,9 +72,8 @@ if __name__ == "__main__":
 
     folder_path = sys.argv[1]
     frame_num = sys.argv[2]
-    
-    depth_image_path = os.path.join(folder_path, f'depth/depth_{str(frame_num).zfill(4)}.png')
-    rgb_image_path = os.path.join(folder_path, f'rgb/rgb_{str(frame_num).zfill(4)}.png')
+    depth_image_path = os.path.join(folder_path, f'depth/d_{str(frame_num).zfill(4)}.png')
+    rgb_image_path = os.path.join(folder_path, f'rgb/r_{str(frame_num).zfill(4)}.png')
 
     depth_intrinsics_path = os.path.join(folder_path, 'depth_intrinsics.txt')
     rgb_intrinsics_path = os.path.join(folder_path, 'rgb_intrinsics.txt')
