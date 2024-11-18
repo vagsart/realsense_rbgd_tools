@@ -72,10 +72,3 @@ pip install pyrealsense2 opencv-python-headless open3d
 
 ---
 
-## Notes:
-- Intrinsic parameters (`fx`, `fy`, `cx`, `cy`) are essential for accurate point cloud generation.
-- Depth scale and baseline parameters are crucial for correctly interpreting depth values.
-- To interrupt frame extraction in `custom_rsconvert.py`, use `Ctrl+C`.
-
----
-
