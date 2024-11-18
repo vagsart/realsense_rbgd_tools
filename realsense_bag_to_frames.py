@@ -78,6 +78,10 @@ def custom_rsconvert(bagfile, folder_name):
     depth_counter = 0
     rgb_counter = 0
 
+    # Initialize lists to store timestamps
+    depth_timestamps = []
+    rgb_timestamps = []
+
     # Process the frames and save images
     try:
         while True:
@@ -91,13 +95,21 @@ def custom_rsconvert(bagfile, folder_name):
             # Convert the depth frame to a numpy array and save it as grayscale
             depth_image = np.asanyarray(depth_frame.get_data())
             depth_image = depth_image.astype(np.uint16)  # Ensure depth is 16-bit
-            depth_filename = os.path.join(depth_folder, f"depth_{depth_counter:04d}.png")
+            depth_filename = os.path.join(depth_folder, f"d{depth_counter:04d}.png")
             cv2.imwrite(depth_filename, depth_image)
 
             # Convert the color frame to a numpy array and save it as RGB
             rgb_image = np.asanyarray(color_frame.get_data())
             rgb_filename = os.path.join(rgb_folder, f"rgb_{rgb_counter:04d}.png")
             cv2.imwrite(rgb_filename, rgb_image)
+
+            # Save the timestamps for both depth and RGB frames
+            depth_timestamp = depth_frame.timestamp
+            rgb_timestamp = color_frame.timestamp
+
+            # Append the timestamp and filename pair to the list
+            depth_timestamps.append(f"{depth_timestamp} {depth_filename}")
+            rgb_timestamps.append(f"{rgb_timestamp} {rgb_filename}")
 
             # Increment the counters
             depth_counter += 1
@@ -110,15 +122,25 @@ def custom_rsconvert(bagfile, folder_name):
         # Stop the pipeline after extracting all frames
         pipeline.stop()
 
-    print("Images and intrinsics have been saved successfully.")
+    # After processing all frames, write the timestamps to their respective files
+    with open(os.path.join(folder_name, 'depth_timestamps.txt'), 'w') as f:
+        for timestamp in depth_timestamps:
+            f.write(f"{timestamp}\n")
+    
+    with open(os.path.join(folder_name, 'rgb_timestamps.txt'), 'w') as f:
+        for timestamp in rgb_timestamps:
+            f.write(f"{timestamp}\n")
+
+    print("Images, timestamps, and intrinsics have been saved successfully.")
 
 # Main script execution
 if __name__ == "__main__":
     if len(sys.argv) != 3:
-        print("Usage: python realsense_bat_to_frames.py <bagfile> <output_folder>")
+        print("Usage: python realsense_bag_to_frames.py <bagfile> <output_folder>")
         sys.exit(1)
 
     bagfile = sys.argv[1]
     folder_name = sys.argv[2]
 
     custom_rsconvert(bagfile, folder_name)
+
